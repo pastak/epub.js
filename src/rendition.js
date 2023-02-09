@@ -15,7 +15,6 @@ import IframeView from "./managers/views/iframe";
 
 // Default View Managers
 import DefaultViewManager from "./managers/default/index";
-import ContinuousViewManager from "./managers/continuous/index";
 
 /**
  * Displays an Epub as a series of Views for each Section.
@@ -176,8 +175,6 @@ class Rendition {
 		// If manager is a string, try to load from imported managers
 		if (typeof manager === "string" && manager === "default") {
 			viewManager = DefaultViewManager;
-		} else if (typeof manager === "string" && manager === "continuous") {
-			viewManager = ContinuousViewManager;
 		} else {
 			// otherwise, assume we were passed a class function
 			viewManager = manager;
