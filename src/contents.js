@@ -477,13 +477,13 @@ class Contents {
 	transitionListeners() {
 		let body = this.content;
 
-		body.style['transitionProperty'] = "font, font-size, font-size-adjust, font-stretch, font-variation-settings, font-weight, width, height";
-		body.style['transitionDuration'] = "0.001ms";
-		body.style['transitionTimingFunction'] = "linear";
-		body.style['transitionDelay'] = "0";
+		body.style["transitionProperty"] = "font, font-size, font-size-adjust, font-stretch, font-variation-settings, font-weight, width, height";
+		body.style["transitionDuration"] = "0.001ms";
+		body.style["transitionTimingFunction"] = "linear";
+		body.style["transitionDelay"] = "0";
 
 		this._resizeCheck = this.resizeCheck.bind(this);
-		this.document.addEventListener('transitionend', this._resizeCheck);
+		this.document.addEventListener("transitionend", this._resizeCheck);
 	}
 
 	/**
@@ -727,7 +727,7 @@ class Contents {
 
 	_getStylesheetNode(key) {
 		var styleEl;
-		key = "epubjs-inserted-css-" + (key || '');
+		key = "epubjs-inserted-css-" + (key || "");
 
 		if(!this.document) return false;
 
@@ -798,14 +798,14 @@ class Contents {
 						const _rules = Object.keys(item);
 						const result = _rules.map((rule) => {
 							return `${rule}:${item[rule]}`;
-						}).join(';');
+						}).join(";");
 						styleSheet.insertRule(`${selector}{${result}}`, styleSheet.cssRules.length);
 					});
 				} else {
 					const _rules = Object.keys(definition);
 					const result = _rules.map((rule) => {
 						return `${rule}:${definition[rule]}`;
-					}).join(';');
+					}).join(";");
 					styleSheet.insertRule(`${selector}{${result}}`, styleSheet.cssRules.length);
 				}
 			});
@@ -1200,7 +1200,7 @@ class Contents {
 			this.documentElement.style[WRITING_MODE] = mode;
 		}
 
-		return this.window.getComputedStyle(this.documentElement)[WRITING_MODE] || '';
+		return this.window.getComputedStyle(this.documentElement)[WRITING_MODE] || "";
 	}
 
 	/**
@@ -1231,20 +1231,20 @@ class Contents {
 			layoutStyle: this.layoutStyle(),
 			hasFeature: function (feature) {
 				switch (feature) {
-					case "dom-manipulation":
-						return true;
-					case "layout-changes":
-						return true;
-					case "touch-events":
-						return true;
-					case "mouse-events":
-						return true;
-					case "keyboard-events":
-						return true;
-					case "spine-scripting":
-						return false;
-					default:
-						return false;
+				case "dom-manipulation":
+					return true;
+				case "layout-changes":
+					return true;
+				case "touch-events":
+					return true;
+				case "mouse-events":
+					return true;
+				case "keyboard-events":
+					return true;
+				case "spine-scripting":
+					return false;
+				default:
+					return false;
 				}
 			}
 		};
