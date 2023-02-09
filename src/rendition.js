@@ -214,12 +214,12 @@ class Rendition {
 			this.settings.layout = "pre-paginated";
 		}
 		switch(this.book.package.metadata.spread) {
-			case 'none':
-				this.settings.spread = 'none';
-				break;
-			case 'both':
-				this.settings.spread = true;
-				break;
+		case "none":
+			this.settings.spread = "none";
+			break;
+		case "both":
+			this.settings.spread = true;
+			break;
 		}
 
 		if(!this.manager) {
@@ -631,7 +631,7 @@ class Rendition {
 
 			this._layout.on(EVENTS.LAYOUT.UPDATED, (props, changed) => {
 				this.emit(EVENTS.RENDITION.LAYOUT, props, changed);
-			})
+			});
 		}
 
 		if (this.manager && this._layout) {
