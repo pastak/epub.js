@@ -56,7 +56,7 @@ class DefaultViewManager {
 		if (typeof this.settings.fullsize === "undefined" &&
 				tag && (tag.toLowerCase() == "body" ||
 				tag.toLowerCase() == "html")) {
-				this.settings.fullsize = true;
+			this.settings.fullsize = true;
 		}
 
 		if (this.settings.fullsize) {
@@ -356,14 +356,14 @@ class DefaultViewManager {
 				distY = this.container.scrollHeight - this.layout.delta;
 			}
 		}
-		if(this.settings.direction === 'rtl'){
+		if(this.settings.direction === "rtl"){
 			/***
 				the `floor` function above (L343) is on positive values, so we should add one `layout.delta`
 				to distX or use `Math.ceil` function, or multiply offset.left by -1
 				before `Math.floor`
 			*/
-			distX = distX + this.layout.delta
-			distX = distX - width
+			distX = distX + this.layout.delta;
+			distX = distX - width;
 		}
 		this.scrollTo(distX, distY, true);
 	}
