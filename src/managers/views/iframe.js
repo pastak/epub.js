@@ -189,7 +189,8 @@ class IframeView {
 
 				return new Promise((resolve, reject) => {
 					// Expand the iframe to the full size of the content
-					this.expand();
+					console.log("render -> expand", this.iframe.contentDocument.body.className, getComputedStyle(this.iframe.contentDocument.body).fontSize);
+					this.expand(true);
 
 					if (this.settings.forceRight) {
 						this.element.style.marginLeft = this.width() + "px";
@@ -273,6 +274,7 @@ class IframeView {
 		if(this.displayed && this.iframe) {
 
 			// this.contents.layout();
+			console.log("lock -> expand");
 			this.expand();
 		}
 
@@ -281,7 +283,7 @@ class IframeView {
 	}
 
 	// Resize a single axis based on content dimensions
-	expand(force) {
+	expand(fullsize) {
 		var width = this.lockedWidth;
 		var height = this.lockedHeight;
 		var columns;
@@ -292,6 +294,7 @@ class IframeView {
 
 		this._expanding = true;
 
+		console.log("aaaaaa", height, this.layout.name, this.layout.height, this.settings.axis);
 		if(this.layout.name === "pre-paginated") {
 			width = this.layout.columnWidth;
 			height = this.layout.height;
@@ -318,23 +321,28 @@ class IframeView {
 		} // Expand Vertically
 		else if(this.settings.axis === "vertical") {
 			height = this.contents.textHeight();
+			console.log("bbb", {height}, this.settings.flow);
 			if (this.settings.flow === "paginated" &&
 				height % this.layout.height > 0) {
 				height = Math.ceil(height / this.layout.height) * this.layout.height;
+				console.log("cccc");
 			}
 		}
 
 		// Only Resize if dimensions have changed or
 		// if Frame is still hidden, so needs reframing
 		if(this._needsReframe || width != this._width || height != this._height){
-			this.reframe(width, height);
+			console.log(this._needsReframe, width, this._width, height ,this._height);
+			this.reframe(width, height, fullsize);
 		}
 
 		this._expanding = false;
 	}
 
-	reframe(width, height) {
+	reframe(width, height, fullsize) {
+		if (fullsize) return;
 		var size;
+		console.log({prev: this.prevBounds, width, height});
 
 		if(isNumber(width)){
 			this.element.style.width = width + "px";
@@ -452,6 +460,7 @@ class IframeView {
 
 		this.contents.on(EVENTS.CONTENTS.EXPAND, () => {
 			if(this.displayed && this.iframe) {
+				console.log("onLoad -> onEXAPND -> expand", getComputedStyle(this.iframe.contentDocument.body).fontSize);
 				this.expand();
 				if (this.contents) {
 					this.layout.format(this.contents);
@@ -461,6 +470,7 @@ class IframeView {
 
 		this.contents.on(EVENTS.CONTENTS.RESIZE, (e) => {
 			if(this.displayed && this.iframe) {
+				console.log("onLoad -> onRESIZE -> expand", getComputedStyle(this.iframe.contentDocument.body).fontSize);
 				this.expand();
 				if (this.contents) {
 					this.layout.format(this.contents);
@@ -476,6 +486,7 @@ class IframeView {
 
 		if (this.contents) {
 			this.layout.format(this.contents);
+			console.log("setLayout -> expand");
 			this.expand();
 		}
 	}
@@ -562,7 +573,7 @@ class IframeView {
 		return {
 			top: this.element.offsetTop,
 			left: this.element.offsetLeft
-		}
+		};
 	}
 
 	width() {
@@ -764,7 +775,7 @@ class IframeView {
 				if (l) {
 					item.element.removeEventListener("click", l);
 					item.element.removeEventListener("touchstart", l);
-				};
+				}
 			});
 			delete this.highlights[cfiRange];
 		}
@@ -779,7 +790,7 @@ class IframeView {
 				if (l) {
 					item.element.removeEventListener("click", l);
 					item.element.removeEventListener("touchstart", l);
-				};
+				}
 			});
 			delete this.underlines[cfiRange];
 		}
@@ -794,7 +805,7 @@ class IframeView {
 				if (l) {
 					item.element.removeEventListener("click", l);
 					item.element.removeEventListener("touchstart", l);
-				};
+				}
 			});
 			delete this.marks[cfiRange];
 		}

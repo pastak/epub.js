@@ -410,6 +410,7 @@ class DefaultViewManager {
 		var view = this.createView(section, forceRight);
 
 		view.on(EVENTS.VIEWS.RESIZED, (bounds) => {
+			console.log("a", bounds);
 			this.counter(bounds);
 		});
 
@@ -493,9 +494,9 @@ class DefaultViewManager {
 
 			this.scrollTop = this.container.scrollTop;
 
-			let top  = this.container.scrollTop + this.container.offsetHeight;
+			const reachedToBottom = Math.abs(this.container.scrollHeight - this.container.clientHeight - this.container.scrollTop) < 1;
 
-			if(top < this.container.scrollHeight) {
+			if(!reachedToBottom) {
 				this.scrollBy(0, this.layout.height, true);
 			} else {
 				next = this.views.last().section.next();
@@ -853,6 +854,7 @@ class DefaultViewManager {
 	}
 
 	scrollBy(x, y, silent){
+		console.log("scrollBy", x, y, silent, this.settings.fullsize);
 		let dir = this.settings.direction === "rtl" ? -1 : 1;
 
 		if(silent) {
@@ -938,6 +940,7 @@ class DefaultViewManager {
 	}
 
 	updateLayout() {
+		console.log("updateLayout");
 
 		if (!this.stage) {
 			return;

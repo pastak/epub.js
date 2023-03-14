@@ -256,6 +256,7 @@ class Contents {
 		} else {
 			content.style.removeProperty(property);
 		}
+		if (property.startsWith("font"))console.log("css", property, value);
 
 		return this.window.getComputedStyle(content)[property];
 	}
@@ -430,6 +431,7 @@ class Contents {
 		let width = this.textWidth();
 		let height = this.textHeight();
 
+		console.log("resizeCheck", width, this._size.width, height, this._size.height);
 		if (width != this._size.width || height != this._size.height) {
 
 			this._size = {
