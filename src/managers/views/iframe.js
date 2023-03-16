@@ -340,7 +340,6 @@ class IframeView {
 	}
 
 	reframe(width, height, fullsize) {
-		if (fullsize) return;
 		var size;
 		console.log({prev: this.prevBounds, width, height});
 
@@ -382,7 +381,7 @@ class IframeView {
 
 		this.emit(EVENTS.VIEWS.RESIZED, size);
 
-		this.prevBounds = size;
+		if (!fullsize) this.prevBounds = size;
 
 		this.elementBounds = bounds(this.element);
 
