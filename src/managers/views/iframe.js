@@ -381,7 +381,9 @@ class IframeView {
 
 		this.emit(EVENTS.VIEWS.RESIZED, size);
 
-		if (!fullsize) this.prevBounds = size;
+		if (fullsize) return;
+
+		this.prevBounds = size;
 
 		this.elementBounds = bounds(this.element);
 
