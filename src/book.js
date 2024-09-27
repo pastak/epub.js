@@ -4,30 +4,18 @@ import Url from "./utils/url";
 import Path from "./utils/path";
 import Spine from "./spine";
 import Locations from "./locations";
-import Container from "./container";
 import Packaging from "./packaging";
 import Navigation from "./navigation";
 import Resources from "./resources";
 import PageList from "./pagelist";
 import Rendition from "./rendition";
-import Archive from "./archive";
 import request from "./utils/request";
 import EpubCFI from "./epubcfi";
 import Store from "./store";
 import DisplayOptions from "./displayoptions";
 import { EPUBJS_VERSION, EVENTS } from "./utils/constants";
 
-const CONTAINER_PATH = "META-INF/container.xml";
 const IBOOKS_DISPLAY_OPTIONS_PATH = "META-INF/com.apple.ibooks.display-options.xml";
-
-const INPUT_TYPE = {
-	BINARY: "binary",
-	BASE64: "base64",
-	EPUB: "epub",
-	OPF: "opf",
-	MANIFEST: "json",
-	DIRECTORY: "directory"
-};
 
 /**
  * An Epub representation with methods for the loading, parsing and manipulation
@@ -239,72 +227,13 @@ class Book {
 
 	/**
 	 * Open a epub or url
-	 * @param {string | ArrayBuffer} input Url, Path or ArrayBuffer
-	 * @param {string} [what="binary", "base64", "epub", "opf", "json", "directory"] force opening as a certain type
+	 * @param {string | ArrayBuffer} input Url, Path or ArrayBuffer\
 	 * @returns {Promise} of when the book has been loaded
 	 * @example book.open("/path/to/book.epub")
 	 */
-	open(input, what) {
-		var opening;
-		var type = what || this.determineType(input);
-
-		if (type === INPUT_TYPE.BINARY) {
-			this.archived = true;
-			this.url = new Url("/", "");
-			opening = this.openEpub(input);
-		} else if (type === INPUT_TYPE.BASE64) {
-			this.archived = true;
-			this.url = new Url("/", "");
-			opening = this.openEpub(input, type);
-		} else if (type === INPUT_TYPE.EPUB) {
-			this.archived = true;
-			this.url = new Url("/", "");
-			opening = this.request(input, "binary", this.settings.requestCredentials, this.settings.requestHeaders)
-				.then(this.openEpub.bind(this));
-		} else if(type == INPUT_TYPE.OPF) {
-			this.url = new Url(input);
-			opening = this.openPackaging(this.url.Path.toString());
-		} else if(type == INPUT_TYPE.MANIFEST) {
-			this.url = new Url(input);
-			opening = this.openManifest(this.url.Path.toString());
-		} else {
-			this.url = new Url(input);
-			opening = this.openContainer(CONTAINER_PATH)
-				.then(this.openPackaging.bind(this));
-		}
-
-		return opening;
-	}
-
-	/**
-	 * Open an archived epub
-	 * @private
-	 * @param  {binary} data
-	 * @param  {string} [encoding]
-	 * @return {Promise}
-	 */
-	openEpub(data, encoding) {
-		return this.unarchive(data, encoding || this.settings.encoding)
-			.then(() => {
-				return this.openContainer(CONTAINER_PATH);
-			})
-			.then((packagePath) => {
-				return this.openPackaging(packagePath);
-			});
-	}
-
-	/**
-	 * Open the epub container
-	 * @private
-	 * @param  {string} url
-	 * @return {string} packagePath
-	 */
-	openContainer(url) {
-		return this.load(url)
-			.then((xml) => {
-				this.container = new Container(xml);
-				return this.resolve(this.container.packagePath);
-			});
+	open(input) {
+		this.url = new Url(input);
+		return this.openPackaging(this.url.Path.toString());
 	}
 
 	/**
@@ -318,22 +247,6 @@ class Book {
 		return this.load(url)
 			.then((xml) => {
 				this.packaging = new Packaging(xml);
-				return this.unpack(this.packaging);
-			});
-	}
-
-	/**
-	 * Open the manifest JSON
-	 * @private
-	 * @param  {string} url
-	 * @return {Promise}
-	 */
-	openManifest(url) {
-		this.path = new Path(url);
-		return this.load(url)
-			.then((json) => {
-				this.packaging = new Packaging();
-				this.packaging.load(json);
 				return this.unpack(this.packaging);
 			});
 	}
@@ -402,52 +315,6 @@ class Book {
 	}
 
 	/**
-	 * Determine the type of they input passed to open
-	 * @private
-	 * @param  {string} input
-	 * @return {string}  binary | directory | epub | opf
-	 */
-	determineType(input) {
-		var url;
-		var path;
-		var extension;
-
-		if (this.settings.encoding === "base64") {
-			return INPUT_TYPE.BASE64;
-		}
-
-		if(typeof(input) != "string") {
-			return INPUT_TYPE.BINARY;
-		}
-
-		url = new Url(input);
-		path = url.path();
-		extension = path.extension;
-
-		// If there's a search string, remove it before determining type
-		if (extension) {
-			extension = extension.replace(/\?.*$/, "");
-		}
-
-		if (!extension) {
-			return INPUT_TYPE.DIRECTORY;
-		}
-
-		if(extension === "epub"){
-			return INPUT_TYPE.EPUB;
-		}
-
-		if(extension === "opf"){
-			return INPUT_TYPE.OPF;
-		}
-
-		if(extension === "json"){
-			return INPUT_TYPE.MANIFEST;
-		}
-	}
-
-
-	/**
 	 * unpack the contents of the Books packaging
 	 * @private
 	 * @param {Packaging} packaging object
@@ -502,9 +369,9 @@ class Book {
 					this.opening.resolve(this);
 				});
 			})
-			.catch((err) => {
-				console.error(err);
-			});
+				.catch((err) => {
+					console.error(err);
+				});
 		} else {
 			// Resolve book opened promise
 			this.loaded.displayOptions.then(() => {
@@ -590,18 +457,6 @@ class Book {
 	 */
 	setRequestHeaders(headers) {
 		this.settings.requestHeaders = headers;
-	}
-
-	/**
-	 * Unarchive a zipped epub
-	 * @private
-	 * @param  {binary} input epub data
-	 * @param  {string} [encoding]
-	 * @return {Archive}
-	 */
-	unarchive(input, encoding) {
-		this.archive = new Archive();
-		return this.archive.open(input, encoding);
 	}
 
 	/**

@@ -56,7 +56,7 @@ class DefaultViewManager {
 		if (typeof this.settings.fullsize === "undefined" &&
 				tag && (tag.toLowerCase() == "body" ||
 				tag.toLowerCase() == "html")) {
-				this.settings.fullsize = true;
+			this.settings.fullsize = true;
 		}
 
 		if (this.settings.fullsize) {
@@ -350,20 +350,19 @@ class DefaultViewManager {
 				distX = this.container.scrollWidth - this.layout.delta;
 			}
 
-			distY = Math.floor(offset.top / this.layout.delta) * this.layout.delta;
-
-			if (distY + this.layout.delta > this.container.scrollHeight) {
-				distY = this.container.scrollHeight - this.layout.delta;
+			distY = Math.floor(offset.top / this.layout.height) * this.layout.height;
+			if (distY + this.layout.height > this.container.scrollHeight) {
+				distY = this.container.scrollHeight - this.layout.height;
 			}
 		}
-		if(this.settings.direction === 'rtl'){
+		if(this.settings.direction === "rtl"){
 			/***
 				the `floor` function above (L343) is on positive values, so we should add one `layout.delta`
 				to distX or use `Math.ceil` function, or multiply offset.left by -1
 				before `Math.floor`
 			*/
-			distX = distX + this.layout.delta
-			distX = distX - width
+			distX = distX + this.layout.delta;
+			distX = distX - width;
 		}
 		this.scrollTo(distX, distY, true);
 	}
@@ -410,6 +409,7 @@ class DefaultViewManager {
 		var view = this.createView(section, forceRight);
 
 		view.on(EVENTS.VIEWS.RESIZED, (bounds) => {
+			console.log("a", bounds);
 			this.counter(bounds);
 		});
 
@@ -493,9 +493,9 @@ class DefaultViewManager {
 
 			this.scrollTop = this.container.scrollTop;
 
-			let top  = this.container.scrollTop + this.container.offsetHeight;
+			const reachedToBottom = Math.abs(this.container.scrollHeight - this.container.clientHeight - this.container.scrollTop) < 1;
 
-			if(top < this.container.scrollHeight) {
+			if(!reachedToBottom) {
 				this.scrollBy(0, this.layout.height, true);
 			} else {
 				next = this.views.last().section.next();
@@ -853,6 +853,7 @@ class DefaultViewManager {
 	}
 
 	scrollBy(x, y, silent){
+		console.log("scrollBy", x, y, silent, this.settings.fullsize);
 		let dir = this.settings.direction === "rtl" ? -1 : 1;
 
 		if(silent) {
@@ -938,6 +939,7 @@ class DefaultViewManager {
 	}
 
 	updateLayout() {
+		console.log("updateLayout");
 
 		if (!this.stage) {
 			return;
